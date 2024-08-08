@@ -1,15 +1,15 @@
 clear all
 %% general parameters
-Nc=1024;  % number of subcarrier
+Nc=512;  % number of subcarrier
 M_sym=1; % number of symbols
 delta_f1=30e3; % subcarriers spacing of MBS
 delta_f2=120e3; % subcarriers spacing of MiBS
 c_0=3e8; % light speed
 I=3; % number of  target
-N_transmit=128; % number of transmit antenna
-N_receive=128; % number of receive antenna
+N_transmit=32; % number of transmit antenna
+N_receive=1; % number of receive antenna
 a=0.5; % the antenna space/ wavelength
-MC=1; % monte carlo times
+MC=100; % monte carlo times
 Q=delta_f2/delta_f1; % the ratio of subcarrier spacing
 %% target and BS parameter
 target_1=[200,30]; % the target 1 location
@@ -134,7 +134,7 @@ end
 
 %% RMSE
 RMSE_target3=[];
-for snr=-20:1:20
+for snr=-20:5:20
     RMSE1=0;
     tic
     for m=1:MC
@@ -145,15 +145,15 @@ for snr=-20:1:20
         New_MiBS_noise=permute(three_dimentional_all_MiBS_noise, [2, 1, 3]);
 %         %% sensing
 %         %===========fusion sensing===============
-%         [MiBS_delay,MiBS_AoA]=threeD_MUSIC(three_dimentional_all_MiBS_noise,N_receive,Nc,c_0,delta_f1);
+        [MiBS_delay,MiBS_AoA]=threeD_MUSIC(New_MiBS_noise,N_transmit,Nc,c_0,delta_f1);
 % 
 %         %% calculating the location
 %         %=========== fusion ==================
-%         [tarMiBS_1,tarMiBS_2,tarMiBS_3]=AoA_location(MBS_location,MiBS_location,MiBS_delay,MiBS_AoA);
-         [tarMiBS_1,tarMiBS_2,tarMiBS_3]=grid_3D_DFT(three_dimentional_all_MiBS_noise,N_receive,Nc,delta_f1,c_0,MBS_location,MiBS_location);
+         [tarMiBS_1,tarMiBS_2,tarMiBS_3]=AoA_location(MBS_location,MiBS_location,MiBS_delay,MiBS_AoA);
+%         [tarMiBS_1,tarMiBS_2,tarMiBS_3]=grid_3D_DFT(three_dimentional_all_MiBS_noise,N_receive,Nc,delta_f1,c_0,MBS_location,MiBS_location);
 %        [tarMiBS_1,tarMiBS_2,tarMiBS_3]=threeD_DFT(New_MiBS_noise,c_0,delta_f1,N_receive,Nc,MBS_location,MiBS_location);
          RMSE1=RMSE1+((tarMiBS_3(1)-target_3(1))^2+(tarMiBS_3(2)-target_3(2))^2+ ...
-            (tarMiBS_2(1)-target_3(1))^2+(tarMiBS_2(2)-target_2(2))^2)/2;
+            (tarMiBS_2(1)-target_2(1))^2+(tarMiBS_2(2)-target_2(2))^2)/2;
     end
     toc
     RMSE_target3=[RMSE_target3,sqrt(RMSE1/MC)];
